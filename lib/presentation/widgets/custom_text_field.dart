@@ -124,10 +124,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
               borderSide: const BorderSide(color: Colors.red),
             ),
             contentPadding: EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: widget.maxLines != null
-                  ? widget.maxLines!.toDouble().h * 2
-                  : 0,
+              horizontal: 32,
+              vertical: widget.maxLines != null ? 32 : 0,
             ).r,
             suffixIcon: widget.suffix,
             prefixIcon:
@@ -142,7 +140,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
   }
 
   InputBorder get border => OutlineInputBorder(
-        borderRadius: BorderRadius.circular(30),
+        // borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(
           color: widget.borderColor ?? const Color(0xff737373),
         ),
@@ -155,7 +153,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
     if (widget.errorMessage != null) {
       errorMessageStreamController.add(widget.errorMessage!);
     } else if (value == null || value.isEmpty) {
-      errorMessageStreamController.add(['Məcburidir']);
+      errorMessageStreamController.add(['*Required']);
       return '';
     } else {
       errorMessageStreamController.add(null);

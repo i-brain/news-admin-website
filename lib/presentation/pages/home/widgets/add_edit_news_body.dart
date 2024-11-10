@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker_web/image_picker_web.dart';
 import 'package:news_admin/core/extension.dart';
+import 'package:news_admin/presentation/widgets/custom_dropdown.dart';
 import 'package:news_admin/presentation/widgets/custom_text_field.dart';
 import '../../../widgets/custom_button.dart';
 
@@ -28,21 +29,25 @@ class AddEditNewsBody extends StatefulWidget {
 
 class _AddEditNewsBodyState extends State<AddEditNewsBody> {
   late final TextEditingController _titleController;
-  late final TextEditingController _priceController;
+  late final TextEditingController _descriptionController;
+  late final ValueNotifier<String?> _categoryNotifier;
   late final ValueNotifier<Uint8List?> _imageNotifier;
   final GlobalKey<FormState> _formKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
     _titleController = TextEditingController();
-    _priceController = TextEditingController();
+    _descriptionController = TextEditingController();
+    _categoryNotifier = ValueNotifier(null);
     _imageNotifier = ValueNotifier(null);
   }
 
   @override
   void dispose() {
     _titleController.dispose();
-    _priceController.dispose();
+    _descriptionController.dispose();
+    _categoryNotifier.dispose();
     _imageNotifier.dispose();
     super.dispose();
   }
@@ -51,11 +56,11 @@ class _AddEditNewsBodyState extends State<AddEditNewsBody> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     return SizedBox(
-      width: width / 2,
+      width: width * 0.6,
       child: Form(
         key: _formKey,
         child: Padding(
-          padding: const EdgeInsets.all(56).r,
+          padding: const EdgeInsets.all(48).r,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -63,73 +68,77 @@ class _AddEditNewsBodyState extends State<AddEditNewsBody> {
                 padding: const EdgeInsets.only(left: 16).r,
                 child: Text('Title', style: context.style.bodyLarge),
               ),
-              CustomTextField(controller: _titleController, hint: 'Title'),
+              CustomTextField(
+                  controller: _titleController, hint: 'Enter title here'),
               SizedBox(height: 20.h),
+              Padding(
+                padding: const EdgeInsets.only(left: 16).r,
+                child: Text('Description', style: context.style.bodyLarge),
+              ),
+              CustomTextField(
+                controller: _descriptionController,
+                hint: 'Enter description here',
+                maxLines: 4,
+                textInputAction: TextInputAction.newline,
+              ),
+              SizedBox(height: 20.h),
+              CustomDropdown(
+                list: _categories,
+                valueNotifier: _categoryNotifier,
+                hint: 'Select Category',
+              ),
+              SizedBox(height: 32.h),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Qiymət: ',
-                    style:
-                        TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+                  TextButton(
+                    onPressed: _pickImage,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.cloud_upload,
+                          color: Colors.blue,
+                          size: 50.r,
+                        ),
+                        SizedBox(width: 20.w),
+                        Text(
+                          'Upload Image',
+                          style: context.style.bodyLarge
+                              ?.copyWith(color: Colors.blue),
+                        ),
+                      ],
+                    ),
                   ),
-                  Expanded(
-                    child: CustomTextField(
-                      controller: _priceController,
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                      hint: 'Title',
+                  SizedBox(
+                    height: 140.r,
+                    width: 140.r,
+                    child: ValueListenableBuilder(
+                      valueListenable: _imageNotifier,
+                      builder: (context, value, child) {
+                        if (_imageNotifier.value != null) {
+                          return ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.memory(
+                              _imageNotifier.value!,
+                              height: 140.r,
+                              width: 140.r,
+                              fit: BoxFit.cover,
+                            ),
+                          );
+                        }
+                        return Icon(Icons.photo, size: 140.r);
+                      },
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 32.h),
-              Align(
-                alignment: Alignment.center,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    _pickImage();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4)),
-                  ),
-                  label: const Text(
-                    'Şəkil seç',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  icon: const Icon(Icons.image, color: Colors.white),
-                ),
-              ),
-              SizedBox(height: 10.h),
-              Center(
-                child: SizedBox(
-                  height: 140.r,
-                  width: 140.r,
-                  child: ValueListenableBuilder(
-                    valueListenable: _imageNotifier,
-                    builder: (context, value, child) {
-                      if (_imageNotifier.value != null) {
-                        return ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.memory(
-                            _imageNotifier.value!,
-                            height: 140.r,
-                            width: 140.r,
-                            fit: BoxFit.fill,
-                          ),
-                        );
-                      }
-                      return Icon(Icons.photo, size: 140.r);
-                    },
-                  ),
-                ),
-              ),
               SizedBox(height: 20.h),
-              CustomButton(
-                onTap: () {},
-                title: 'Təsdiqlə',
-                backgroundColor: Colors.green,
+              Center(
+                child: CustomButton(
+                  onTap: _submitForm,
+                  title: 'Submit',
+                  backgroundColor: Colors.green,
+                ),
               ),
             ],
           ),
@@ -142,4 +151,17 @@ class _AddEditNewsBodyState extends State<AddEditNewsBody> {
     final fromPicker = await ImagePickerWeb.getImageAsBytes();
     _imageNotifier.value = fromPicker;
   }
+
+  void _submitForm() {
+    if (_formKey.currentState!.validate() && _validateCategory()) {
+      // Handle form submission
+    }
+  }
+
+  bool _validateCategory() {
+    return _categoryNotifier.value != null;
+  }
+
+  List<String> get _categories =>
+      ['Politics', 'Sports', 'Technology', 'Health'];
 }

@@ -36,7 +36,6 @@ class CustomButton extends StatelessWidget {
                 : Text(
                     title,
                     style: context.style.titleMedium?.copyWith(
-                      fontSize: 16.sp,
                       color: context.colors.onPrimary,
                     ),
                     maxLines: 1,
