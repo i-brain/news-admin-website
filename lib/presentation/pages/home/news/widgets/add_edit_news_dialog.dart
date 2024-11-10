@@ -5,10 +5,10 @@ import 'package:image_picker_web/image_picker_web.dart';
 import 'package:news_admin/core/extension.dart';
 import 'package:news_admin/presentation/widgets/custom_dropdown.dart';
 import 'package:news_admin/presentation/widgets/custom_text_field.dart';
-import '../../../widgets/custom_button.dart';
+import '../../../../widgets/custom_button.dart';
 
-class AddEditNewsBody extends StatefulWidget {
-  const AddEditNewsBody({super.key});
+class AddEditNewsDialog extends StatefulWidget {
+  const AddEditNewsDialog({super.key});
   static Future show(BuildContext context) {
     return showDialog(
       context: context,
@@ -17,17 +17,17 @@ class AddEditNewsBody extends StatefulWidget {
         titlePadding: EdgeInsets.zero,
         contentPadding: EdgeInsets.zero,
         children: [
-          AddEditNewsBody(),
+          AddEditNewsDialog(),
         ],
       ),
     );
   }
 
   @override
-  State<AddEditNewsBody> createState() => _AddEditNewsBodyState();
+  State<AddEditNewsDialog> createState() => _AddEditNewsDialogState();
 }
 
-class _AddEditNewsBodyState extends State<AddEditNewsBody> {
+class _AddEditNewsDialogState extends State<AddEditNewsDialog> {
   late final TextEditingController _titleController;
   late final TextEditingController _descriptionController;
   late final ValueNotifier<String?> _categoryNotifier;
