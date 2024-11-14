@@ -1,23 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:news_admin/core/constants/theme.dart';
-
-import 'presentation/pages/home/page.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:news_admin/core/provider/drawer.dart';
+import 'package:news_admin/presentation/pages/main/page.dart';
+import 'package:provider/provider.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return ScreenUtilInit(
-      designSize: const Size(1920, 1275),
-      minTextAdapt: true,
-      builder: (context, child) => MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Cold News',
-        theme: AppTheme.theme,
-        home: HomePage(),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Mews Admin Panel',
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: const Color(0xFF212332),
+        textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme)
+            .apply(bodyColor: Colors.white),
+        canvasColor: const Color(0xFF2A2D3E),
+      ),
+      home: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (context) => DrawerProvider()),
+        ],
+        child: const MainPage(),
       ),
     );
   }
