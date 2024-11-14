@@ -1,8 +1,8 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker_web/image_picker_web.dart';
 import 'package:news_admin/core/extension.dart';
+import 'package:news_admin/responsive.dart';
 import 'package:news_admin/presentation/widgets/custom_dropdown.dart';
 import 'package:news_admin/presentation/widgets/custom_text_field.dart';
 import '../../../../widgets/custom_button.dart';
@@ -16,6 +16,7 @@ class AddEditNewsDialog extends StatefulWidget {
         insetPadding: EdgeInsets.zero,
         titlePadding: EdgeInsets.zero,
         contentPadding: EdgeInsets.zero,
+        backgroundColor: Colors.white,
         children: [
           AddEditNewsDialog(),
         ],
@@ -60,84 +61,80 @@ class _AddEditNewsDialogState extends State<AddEditNewsDialog> {
       child: Form(
         key: _formKey,
         child: Padding(
-          padding: const EdgeInsets.all(48).r,
+          padding: const EdgeInsets.all(48),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 16).r,
-                child: Text('Title', style: context.style.bodyLarge),
-              ),
               CustomTextField(
-                  controller: _titleController, hint: 'Enter title here'),
-              SizedBox(height: 20.h),
-              Padding(
-                padding: const EdgeInsets.only(left: 16).r,
-                child: Text('Description', style: context.style.bodyLarge),
+                controller: _titleController,
+                hint: 'Title',
               ),
+              const SizedBox(height: 10),
               CustomTextField(
                 controller: _descriptionController,
-                hint: 'Enter description here',
+                hint: 'Description',
                 maxLines: 4,
                 textInputAction: TextInputAction.newline,
               ),
-              SizedBox(height: 20.h),
+              const SizedBox(height: 10),
               CustomDropdown(
                 list: _categories,
                 valueNotifier: _categoryNotifier,
                 hint: 'Select Category',
               ),
-              SizedBox(height: 32.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton(
-                    onPressed: _pickImage,
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.cloud_upload,
-                          color: Colors.blue,
-                          size: 50.r,
+              const SizedBox(height: 32),
+              ValueListenableBuilder(
+                valueListenable: _imageNotifier,
+                builder: (context, value, child) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      TextButton(
+                        onPressed: _pickImage,
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.cloud_upload,
+                              color: Colors.blue,
+                              size: 50,
+                            ),
+                            const SizedBox(width: 20),
+                            Text(
+                              'Upload Image',
+                              style: context.style.bodyLarge
+                                  ?.copyWith(color: Colors.blue),
+                            ),
+                          ],
                         ),
-                        SizedBox(width: 20.w),
-                        Text(
-                          'Upload Image',
-                          style: context.style.bodyLarge
-                              ?.copyWith(color: Colors.blue),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    height: 140.r,
-                    width: 140.r,
-                    child: ValueListenableBuilder(
-                      valueListenable: _imageNotifier,
-                      builder: (context, value, child) {
-                        if (_imageNotifier.value != null) {
-                          return ClipRRect(
+                      ),
+                      if (_imageNotifier.value != null &&
+                          !Responsive.isMobile(context))
+                        SizedBox(
+                          height: 140,
+                          width: 140,
+                          child: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: Image.memory(
                               _imageNotifier.value!,
-                              height: 140.r,
-                              width: 140.r,
+                              height: 140,
+                              width: 140,
                               fit: BoxFit.cover,
                             ),
-                          );
-                        }
-                        return Icon(Icons.photo, size: 140.r);
-                      },
-                    ),
-                  ),
-                ],
+                          ),
+                        ),
+                    ],
+                  );
+                },
               ),
-              SizedBox(height: 20.h),
+              const SizedBox(height: 20),
               Center(
-                child: CustomButton(
-                  onTap: _submitForm,
-                  title: 'Submit',
-                  backgroundColor: Colors.green,
+                child: SizedBox(
+                  width: 200,
+                  child: CustomButton(
+                    onTap: _submitForm,
+                    title: 'Submit',
+                    backgroundColor: Colors.green,
+                  ),
                 ),
               ),
             ],
