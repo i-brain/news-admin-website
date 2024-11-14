@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:news_admin/core/extension.dart';
+import 'package:news_admin/core/constants/colors.dart';
 
 class CustomDropdown extends StatelessWidget {
   const CustomDropdown({
@@ -18,41 +18,55 @@ class CustomDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: valueNotifier,
-      builder: (context, _, __) => DropdownButtonFormField<String>(
-        decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-          contentPadding: EdgeInsets.zero,
-        ),
-        isExpanded: true,
-        hint: hint != null
-            ? Padding(
-                padding: const EdgeInsets.only(left: 32).w,
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border.all(),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: ValueListenableBuilder(
+        valueListenable: valueNotifier,
+        builder: (context, _, __) => DropdownButton<String>(
+          underline: const SizedBox(),
+          borderRadius: BorderRadius.circular(4),
+          isExpanded: true,
+          hint: hint != null
+              ? Padding(
+                  padding: const EdgeInsets.only(left: defaultPadding),
+                  child: Text(
+                    hint!,
+                    style:
+                        context.style.bodyMedium?.copyWith(color: Colors.black),
+                  ),
+                )
+              : null,
+          iconEnabledColor: bgColor,
+          selectedItemBuilder: (context) => list.toSet().map((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 16),
                 child: Text(
-                  hint!,
-                  style: context.style.bodyMedium,
+                  value,
+                  style:
+                      context.style.bodyMedium?.copyWith(color: Colors.black),
                 ),
-              )
-            : null,
-        items: list.toSet().map((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Container(
-              padding: const EdgeInsets.only(left: 16).r,
-              alignment: Alignment.centerLeft,
-              child: FittedBox(
-                child: Text(value, style: context.style.bodyMedium),
               ),
-            ),
-            onTap: () => _onTap(value),
-          );
-        }).toList(),
-        value: (() {
-          assignFirstValue();
-          return valueNotifier.value;
-        }()),
-        onChanged: (_) {},
+              onTap: () => _onTap(value),
+            );
+          }).toList(),
+          items: list.toSet().map((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(
+                value,
+                style: context.style.bodyMedium,
+              ),
+              onTap: () => _onTap(value),
+            );
+          }).toList(),
+          value: valueNotifier.value,
+          onChanged: (_) {},
+        ),
       ),
     );
   }
@@ -63,11 +77,5 @@ class CustomDropdown extends StatelessWidget {
     }
 
     valueNotifier.value = value;
-  }
-
-  void assignFirstValue() {
-    if (list.contains(valueNotifier.value) == false && hint == null) {
-      valueNotifier.value = list.first;
-    }
   }
 }

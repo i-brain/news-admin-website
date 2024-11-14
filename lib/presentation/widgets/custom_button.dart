@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:news_admin/core/extension.dart';
 
 class CustomButton extends StatelessWidget {
@@ -23,21 +22,20 @@ class CustomButton extends StatelessWidget {
         child: ElevatedButton(
           onPressed: isLoading ? null : onTap,
           style: ElevatedButton.styleFrom(
-            backgroundColor: backgroundColor ?? context.colors.primary,
-            shadowColor: Colors.transparent,
-            foregroundColor: context.colors.onPrimary,
-          ),
+              backgroundColor: backgroundColor ?? context.colors.primary,
+              shadowColor: Colors.transparent,
+              foregroundColor: context.colors.onPrimary,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8))),
           child: Padding(
-            padding: EdgeInsets.all(isLoading ? 14.0 : 10.0).r,
+            padding: EdgeInsets.all(isLoading ? 14.0 : 10.0),
             child: isLoading
                 ? const CircularProgressIndicator.adaptive(
                     backgroundColor: Colors.white,
                   )
                 : Text(
                     title,
-                    style: context.style.titleMedium?.copyWith(
-                      color: context.colors.onPrimary,
-                    ),
+                    style: context.style.titleMedium,
                     maxLines: 1,
                   ),
           ),
