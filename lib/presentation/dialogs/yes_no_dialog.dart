@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:news_admin/core/constants/colors.dart';
 import 'package:news_admin/core/extension.dart';
 
 Future<bool?> showYesNoDialog(
@@ -11,19 +11,21 @@ Future<bool?> showYesNoDialog(
     context: context,
     builder: (context) => SizedBox(
       child: SimpleDialog(
-        insetPadding: const EdgeInsets.symmetric(horizontal: 20).r,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20),
         titlePadding: EdgeInsets.zero,
-        contentPadding: const EdgeInsets.all(16).r,
+        contentPadding: const EdgeInsets.all(16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
         children: [
+          const Icon(Icons.info, size: 50, color: primaryColor),
+          const SizedBox(height: 16),
           Text(
             title,
-            style: context.style.titleMedium,
+            style: context.style.titleMedium?.copyWith(color: Colors.black),
             textAlign: TextAlign.center,
           ),
-          SizedBox(height: 32.h),
+          const SizedBox(height: 32),
           Row(
             children: [
               Expanded(
@@ -37,7 +39,7 @@ Future<bool?> showYesNoDialog(
                   ),
                 ),
               ),
-              SizedBox(width: 16.r),
+              const SizedBox(width: 16),
               Expanded(
                 child: ElevatedButton(
                   onPressed: onYes,
