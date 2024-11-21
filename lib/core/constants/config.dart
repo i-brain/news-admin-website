@@ -1,6 +1,5 @@
 class Config {
   const Config._();
 
-  static const baseUrl = "";
-  static const googleApiKey = "AIzaSyDzAHZr9jrf0MozRxiHmIJ1mPgmFLrhvTA";
+  static const baseUrl = "http://localhost:8080/news";
 }
