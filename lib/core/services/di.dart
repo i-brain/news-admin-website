@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
-import '../../presentation/pages/main/news/data/repository.dart';
-import '../../presentation/pages/main/news/data/service.dart';
+import '../../presentation/pages/main/news/data/get_news/repository.dart';
+import '../../presentation/pages/main/news/data/get_news/service.dart';
 import '../constants/config.dart';
 import 'interceptor.dart';
 import 'secure_storage.dart';

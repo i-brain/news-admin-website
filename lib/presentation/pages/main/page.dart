@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:news_admin/core/provider/drawer.dart';
 import 'package:news_admin/core/services/di.dart';
-import 'package:news_admin/presentation/pages/main/news/data/cubit/get_news_cubit.dart';
+import 'package:news_admin/presentation/pages/main/news/data/get_news/cubit/get_news_cubit.dart';
 import 'package:news_admin/presentation/pages/main/news/widgets/body.dart';
 import 'package:news_admin/presentation/widgets/custom_drawer.dart';
 import '../../../core/constants/colors.dart';

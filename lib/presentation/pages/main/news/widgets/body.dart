@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:news_admin/presentation/dialogs/yes_no_dialog.dart';
-import 'package:news_admin/presentation/pages/main/news/data/cubit/get_news_cubit.dart';
-import 'package:news_admin/presentation/pages/main/news/data/response.dart';
+import 'package:news_admin/presentation/pages/main/news/data/get_news/cubit/get_news_cubit.dart';
+import 'package:news_admin/presentation/pages/main/news/data/get_news/response.dart';
 import 'package:news_admin/presentation/pages/main/news/widgets/add_edit_news_dialog.dart';
 import '../../../../../core/constants/colors.dart';
 
@@ -11,33 +11,32 @@ class NewsBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<GetNewsCubit, GetNewsState>(
-      builder: (context, state) {
-        if (state is GetNewsSuccess) {
-          final newsList = state.news;
-          return Container(
-            padding: const EdgeInsets.all(defaultPadding),
-            decoration: const BoxDecoration(
-              color: secondaryColor,
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      "News",
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    IconButton(
-                      onPressed: () => AddEditNewsDialog.show(context),
-                      icon: const Icon(Icons.add_box_outlined,
-                          color: Colors.green),
-                    ),
-                  ],
-                ),
-                SizedBox(
+    return Container(
+      padding: const EdgeInsets.all(defaultPadding),
+      decoration: const BoxDecoration(
+        color: secondaryColor,
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                "News",
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              IconButton(
+                onPressed: () => AddEditNewsDialog.show(context),
+                icon: const Icon(Icons.add_box_outlined, color: Colors.green),
+              ),
+            ],
+          ),
+          BlocBuilder<GetNewsCubit, GetNewsState>(
+            builder: (context, state) {
+              if (state is GetNewsSuccess) {
+                final newsList = state.news;
+                return SizedBox(
                   width: double.infinity,
                   child: DataTable(
                     columnSpacing: defaultPadding,
@@ -60,16 +59,17 @@ class NewsBody extends StatelessWidget {
                       (index) => tableRow(context, newsList[index]),
                     ),
                   ),
-                ),
-              ],
-            ),
-          );
-        }
-        if (state is GetNewsFailure) {
-          return Center(child: Text(state.message.toString()));
-        }
-        return const Center(child: CircularProgressIndicator());
-      },
+                );
+              }
+
+              if (state is GetNewsFailure) {
+                return Center(child: Text(state.message.toString()));
+              }
+              return const Center(child: CircularProgressIndicator());
+            },
+          ),
+        ],
+      ),
     );
   }
 }
