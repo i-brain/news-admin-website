@@ -5,7 +5,7 @@ import 'package:equatable/equatable.dart';
 import '../../../../../../../core/constants/error_messages.dart';
 import '../../../../../../../core/helper_functions.dart';
 import '../response.dart';
-import '../service.dart';
+import '../../service.dart';
 
 part 'get_news_state.dart';
 
