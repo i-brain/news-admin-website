@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:news_admin/core/provider/drawer.dart';
 import 'package:news_admin/core/services/di.dart';
+import 'package:news_admin/presentation/pages/main/news/data/delete_news/delete_news_cubit.dart';
 import 'package:news_admin/presentation/pages/main/news/data/get_news/cubit/get_news_cubit.dart';
 import 'package:news_admin/presentation/pages/main/news/widgets/body.dart';
 import 'package:news_admin/presentation/widgets/custom_drawer.dart';
@@ -39,8 +40,15 @@ class MainPage extends StatelessWidget {
                           ),
                         const SizedBox(height: defaultPadding),
                         //Body
-                        BlocProvider(
-                          create: (context) => GetNewsCubit(getIt())..get(),
+                        MultiBlocProvider(
+                          providers: [
+                            BlocProvider(
+                              create: (context) => GetNewsCubit(getIt())..get(),
+                            ),
+                            BlocProvider(
+                              create: (context) => DeleteNewsCubit(getIt()),
+                            ),
+                          ],
                           child: const NewsBody(),
                         ),
                       ],

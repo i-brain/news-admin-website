@@ -1,24 +1,54 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:image_picker_web/image_picker_web.dart';
-import 'package:news_admin/core/extension.dart';
-import 'package:news_admin/responsive.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:news_admin/core/services/di.dart';
+import 'package:news_admin/presentation/pages/main/news/data/create_news/cubit/create_news_cubit.dart';
+import 'package:news_admin/presentation/pages/main/news/data/create_news/request.dart';
+import 'package:news_admin/presentation/pages/main/news/widgets/image_section.dart';
 import 'package:news_admin/presentation/widgets/custom_dropdown.dart';
 import 'package:news_admin/presentation/widgets/custom_text_field.dart';
 import '../../../../widgets/custom_button.dart';
+import '../data/edit_news/edit_news_cubit.dart';
+import '../data/get_news/response.dart';
+
+enum DialogType { create, edit }
 
 class AddEditNewsDialog extends StatefulWidget {
-  const AddEditNewsDialog({super.key});
-  static Future show(BuildContext context) {
+  const AddEditNewsDialog({
+    super.key,
+    this.dialogType = DialogType.create,
+    this.newsDetails,
+  });
+  final DialogType dialogType;
+  final NewsDetails? newsDetails;
+
+  static Future show(
+    BuildContext context, {
+    DialogType dialogType = DialogType.create,
+    NewsDetails? newsDetails,
+  }) {
     return showDialog(
       context: context,
-      builder: (context) => const SimpleDialog(
+      builder: (context) => SimpleDialog(
         insetPadding: EdgeInsets.zero,
         titlePadding: EdgeInsets.zero,
         contentPadding: EdgeInsets.zero,
         backgroundColor: Colors.white,
         children: [
-          AddEditNewsDialog(),
+          MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (context) => CreateNewsCubit(getIt(), getIt()),
+              ),
+              BlocProvider(
+                create: (context) => EditNewsCubit(getIt(), getIt()),
+              ),
+            ],
+            child: AddEditNewsDialog(
+              dialogType: dialogType,
+              newsDetails: newsDetails,
+            ),
+          ),
         ],
       ),
     );
@@ -29,17 +59,20 @@ class AddEditNewsDialog extends StatefulWidget {
 }
 
 class _AddEditNewsDialogState extends State<AddEditNewsDialog> {
+  final GlobalKey<FormState> _formKey = GlobalKey();
+
   late final TextEditingController _titleController;
   late final TextEditingController _descriptionController;
   late final ValueNotifier<String?> _categoryNotifier;
   late final ValueNotifier<Uint8List?> _imageNotifier;
-  final GlobalKey<FormState> _formKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
-    _titleController = TextEditingController();
-    _descriptionController = TextEditingController();
+    _titleController = TextEditingController(text: widget.newsDetails?.title);
+    _descriptionController = TextEditingController(
+      text: widget.newsDetails?.details,
+    );
     _categoryNotifier = ValueNotifier(null);
     _imageNotifier = ValueNotifier(null);
   }
@@ -83,58 +116,49 @@ class _AddEditNewsDialogState extends State<AddEditNewsDialog> {
                 hint: 'Select Category',
               ),
               const SizedBox(height: 32),
-              ValueListenableBuilder(
-                valueListenable: _imageNotifier,
-                builder: (context, value, child) {
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      TextButton(
-                        onPressed: _pickImage,
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.cloud_upload,
-                              color: Colors.blue,
-                              size: 50,
-                            ),
-                            const SizedBox(width: 20),
-                            Text(
-                              'Upload Image',
-                              style: context.style.bodyLarge
-                                  ?.copyWith(color: Colors.blue),
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (_imageNotifier.value != null &&
-                          !Responsive.isMobile(context))
-                        SizedBox(
-                          height: 140,
-                          width: 140,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.memory(
-                              _imageNotifier.value!,
-                              height: 140,
-                              width: 140,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                    ],
-                  );
-                },
+              ImageSection(
+                imageNotifier: _imageNotifier,
+                imageUrl: widget.newsDetails?.imageUrl,
               ),
               const SizedBox(height: 20),
               Center(
                 child: SizedBox(
                   width: 200,
-                  child: CustomButton(
-                    onTap: _submitForm,
-                    title: 'Submit',
-                    backgroundColor: Colors.green,
-                  ),
+                  child: Builder(builder: (context) {
+                    if (widget.dialogType == DialogType.create) {
+                      return BlocConsumer<CreateNewsCubit, CreateNewsState>(
+                        listener: (context, state) {
+                          if (state is CreateNewsSuccess) {
+                            Navigator.pop(context, true);
+                          }
+                        },
+                        builder: (context, state) {
+                          return CustomButton(
+                            onTap: _submitCreate,
+                            title: 'Submit',
+                            backgroundColor: Colors.green,
+                            isLoading: state is CreateNewsLoading,
+                          );
+                        },
+                      );
+                    }
+                    return BlocConsumer<EditNewsCubit, EditNewsState>(
+                      listener: (context, state) {
+                        print(state.toString());
+                        if (state is EditNewsSuccess) {
+                          Navigator.pop(context, true);
+                        }
+                      },
+                      builder: (context, state) {
+                        return CustomButton(
+                          onTap: _submitEdit,
+                          title: 'Submit',
+                          backgroundColor: Colors.green,
+                          isLoading: state is EditNewsLoading,
+                        );
+                      },
+                    );
+                  }),
                 ),
               ),
             ],
@@ -144,19 +168,45 @@ class _AddEditNewsDialogState extends State<AddEditNewsDialog> {
     );
   }
 
-  void _pickImage() async {
-    final fromPicker = await ImagePickerWeb.getImageAsBytes();
-    _imageNotifier.value = fromPicker;
+  void _submitCreate() {
+    if (_formKey.currentState!.validate() &&
+        _validateCategory() &&
+        _validateImage()) {
+      final request = CreateNewsRequest(
+        title: _titleController.text,
+        details: _descriptionController.text,
+        category: Category(id: 1, name: 'Test name'),
+      );
+
+      context.read<CreateNewsCubit>().create(request, _imageNotifier.value!);
+    }
   }
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate() && _validateCategory()) {
-      // Handle form submission
+  void _submitEdit() {
+    if (_formKey.currentState!.validate() &&
+        _validateCategory() &&
+        _validateImage()) {
+      final request = CreateNewsRequest(
+        title: _titleController.text,
+        details: _descriptionController.text,
+        category: Category(id: 1, name: 'Test name'),
+        imageUrl: widget.newsDetails?.imageUrl,
+      );
+      print(request.toJson());
+      context.read<EditNewsCubit>().edit(
+            widget.newsDetails!.id!,
+            request,
+            _imageNotifier.value,
+          );
     }
   }
 
   bool _validateCategory() {
     return _categoryNotifier.value != null;
+  }
+
+  bool _validateImage() {
+    return _imageNotifier.value != null || widget.newsDetails?.imageUrl != null;
   }
 
   List<String> get _categories =>

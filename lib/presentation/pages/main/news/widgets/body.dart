@@ -1,14 +1,22 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:news_admin/presentation/dialogs/yes_no_dialog.dart';
+import 'package:news_admin/presentation/pages/main/news/data/delete_news/delete_news_cubit.dart';
 import 'package:news_admin/presentation/pages/main/news/data/get_news/cubit/get_news_cubit.dart';
 import 'package:news_admin/presentation/pages/main/news/data/get_news/response.dart';
 import 'package:news_admin/presentation/pages/main/news/widgets/add_edit_news_dialog.dart';
 import '../../../../../core/constants/colors.dart';
 
-class NewsBody extends StatelessWidget {
+class NewsBody extends StatefulWidget {
   const NewsBody({super.key});
 
+  @override
+  State<NewsBody> createState() => _NewsBodyState();
+}
+
+class _NewsBodyState extends State<NewsBody> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -27,7 +35,12 @@ class NewsBody extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               IconButton(
-                onPressed: () => AddEditNewsDialog.show(context),
+                onPressed: () async {
+                  bool isNewsCreated = await AddEditNewsDialog.show(context);
+                  if (isNewsCreated) {
+                    context.read<GetNewsCubit>().get();
+                  }
+                },
                 icon: const Icon(Icons.add_box_outlined, color: Colors.green),
               ),
             ],
@@ -56,7 +69,7 @@ class NewsBody extends StatelessWidget {
                     ],
                     rows: List.generate(
                       newsList.length,
-                      (index) => tableRow(context, newsList[index]),
+                      (index) => _tableRow(context, newsList[index]),
                     ),
                   ),
                 );
@@ -72,39 +85,64 @@ class NewsBody extends StatelessWidget {
       ),
     );
   }
-}
 
-DataRow tableRow(BuildContext context, NewsDetails newsDetails) {
-  return DataRow(
-    cells: [
-      DataCell(Text(newsDetails.id.toString())),
-      DataCell(Text(newsDetails.title.toString(), maxLines: 1)),
-      DataCell(Text(newsDetails.details.toString() +
-          newsDetails.details.toString() +
-          newsDetails.details.toString())),
-      DataCell(
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(
-              onPressed: () {
-                AddEditNewsDialog.show(context);
-              },
-              icon: const Icon(Icons.edit, color: Colors.orange),
-            ),
-            IconButton(
-              onPressed: () {
-                showYesNoDialog(
-                  context,
-                  title: 'Do you want to delete this news?',
-                  onYes: () {},
-                );
-              },
-              icon: const Icon(Icons.delete, color: Colors.red),
-            ),
-          ],
+  DataRow _tableRow(BuildContext context, NewsDetails newsDetails) {
+    return DataRow(
+      cells: [
+        DataCell(Text(newsDetails.id.toString())),
+        DataCell(Text(newsDetails.title.toString(), maxLines: 1)),
+        DataCell(Text(newsDetails.details.toString() +
+            newsDetails.details.toString() +
+            newsDetails.details.toString())),
+        DataCell(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                onPressed: () {
+                  AddEditNewsDialog.show(
+                    context,
+                    newsDetails: newsDetails,
+                    dialogType: DialogType.edit,
+                  ).then(
+                    (isEdited) {
+                      if (isEdited) {
+                        context.read<GetNewsCubit>().get();
+                      }
+                    },
+                  );
+                },
+                icon: const Icon(Icons.edit, color: Colors.orange),
+              ),
+              BlocListener<DeleteNewsCubit, DeleteNewsState>(
+                listener: (context, state) {
+                  if (state is DeleteNewsSuccess) {
+                    context.read<GetNewsCubit>().get();
+                  }
+                },
+                child: IconButton(
+                  onPressed: () => _handleDelete(newsDetails.id!),
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-    ],
-  );
+      ],
+    );
+  }
+
+  void _handleDelete(int id) {
+    showYesNoDialog(
+      context,
+      title: 'Do you want to delete this news?',
+      onYes: () => Navigator.pop(context, true),
+    ).then(
+      (isDeleted) {
+        if (isDeleted == true) {
+          context.read<DeleteNewsCubit>().delete(id);
+        }
+      },
+    );
+  }
 }
