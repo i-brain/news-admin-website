@@ -2,21 +2,21 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:news_admin/presentation/dialogs/yes_no_dialog.dart';
-import 'package:news_admin/presentation/pages/main/news/data/delete_news/delete_news_cubit.dart';
-import 'package:news_admin/presentation/pages/main/news/data/get_news/cubit/get_news_cubit.dart';
-import 'package:news_admin/presentation/pages/main/news/data/get_news/response.dart';
-import 'package:news_admin/presentation/pages/main/news/widgets/add_edit_news_dialog.dart';
 import '../../../../../core/constants/colors.dart';
+import '../../../../dialogs/yes_no_dialog.dart';
+import '../data/delete/cubit.dart';
+import '../data/get/cubit/cubit.dart';
+import '../data/get/response.dart';
+import 'add_edit_category_dialog.dart';
 
-class NewsBody extends StatefulWidget {
-  const NewsBody({super.key});
+class CategoryBody extends StatefulWidget {
+  const CategoryBody({super.key});
 
   @override
-  State<NewsBody> createState() => _NewsBodyState();
+  State<CategoryBody> createState() => _CategoryBodyState();
 }
 
-class _NewsBodyState extends State<NewsBody> {
+class _CategoryBodyState extends State<CategoryBody> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -31,24 +31,25 @@ class _NewsBodyState extends State<NewsBody> {
           Row(
             children: [
               Text(
-                "News",
+                "Category",
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               IconButton(
                 onPressed: () async {
-                  bool? isNewsCreated = await AddEditNewsDialog.show(context);
-                  if (isNewsCreated == true) {
-                    context.read<GetNewsCubit>().get();
+                  bool? isCategoryCreated =
+                      await AddEditCategoryDialog.show(context);
+                  if (isCategoryCreated == true) {
+                    context.read<GetCategoryCubit>().get();
                   }
                 },
                 icon: const Icon(Icons.add_box_outlined, color: Colors.green),
               ),
             ],
           ),
-          BlocBuilder<GetNewsCubit, GetNewsState>(
+          BlocBuilder<GetCategoryCubit, GetCategoryState>(
             builder: (context, state) {
-              if (state is GetNewsSuccess) {
-                final newsList = state.news;
+              if (state is GetCategorySuccess) {
+                final categories = state.categories;
                 return SizedBox(
                   width: double.infinity,
                   child: DataTable(
@@ -61,21 +62,18 @@ class _NewsBodyState extends State<NewsBody> {
                         label: Text("Title"),
                       ),
                       DataColumn(
-                        label: Text("Description"),
-                      ),
-                      DataColumn(
                           label: Text("Action"),
                           headingRowAlignment: MainAxisAlignment.center),
                     ],
                     rows: List.generate(
-                      newsList.length,
-                      (index) => _tableRow(context, newsList[index]),
+                      categories.length,
+                      (index) => _tableRow(context, categories[index]),
                     ),
                   ),
                 );
               }
 
-              if (state is GetNewsFailure) {
+              if (state is GetCategoryFailure) {
                 return Center(child: Text(state.message.toString()));
               }
               return const Center(child: CircularProgressIndicator());
@@ -86,40 +84,39 @@ class _NewsBodyState extends State<NewsBody> {
     );
   }
 
-  DataRow _tableRow(BuildContext context, NewsDetails newsDetails) {
+  DataRow _tableRow(BuildContext context, Category categoryDetails) {
     return DataRow(
       cells: [
-        DataCell(Text(newsDetails.id.toString())),
-        DataCell(Text(newsDetails.title.toString(), maxLines: 1)),
-        DataCell(Text(newsDetails.details.toString(), maxLines: 1)),
+        DataCell(Text(categoryDetails.id.toString())),
+        DataCell(Text(categoryDetails.name.toString(), maxLines: 1)),
         DataCell(
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               IconButton(
                 onPressed: () {
-                  AddEditNewsDialog.show(
+                  AddEditCategoryDialog.show(
                     context,
-                    newsDetails: newsDetails,
+                    categoryDetails: categoryDetails,
                     dialogType: DialogType.edit,
                   ).then(
                     (isEdited) {
                       if (isEdited == true) {
-                        context.read<GetNewsCubit>().get();
+                        context.read<GetCategoryCubit>().get();
                       }
                     },
                   );
                 },
                 icon: const Icon(Icons.edit, color: Colors.orange),
               ),
-              BlocListener<DeleteNewsCubit, DeleteNewsState>(
+              BlocListener<DeleteCategoryCubit, DeleteCategoryState>(
                 listener: (context, state) {
-                  if (state is DeleteNewsSuccess) {
-                    context.read<GetNewsCubit>().get();
+                  if (state is DeleteCategorySuccess) {
+                    context.read<GetCategoryCubit>().get();
                   }
                 },
                 child: IconButton(
-                  onPressed: () => _handleDelete(newsDetails.id!),
+                  onPressed: () => _handleDelete(categoryDetails.id),
                   icon: const Icon(Icons.delete, color: Colors.red),
                 ),
               ),
@@ -133,12 +130,12 @@ class _NewsBodyState extends State<NewsBody> {
   void _handleDelete(int id) {
     showYesNoDialog(
       context,
-      title: 'Do you want to delete this news?',
+      title: 'Do you want to delete this category?',
       onYes: () => Navigator.pop(context, true),
     ).then(
       (isDeleted) {
         if (isDeleted == true) {
-          context.read<DeleteNewsCubit>().delete(id);
+          context.read<DeleteCategoryCubit>().delete(id);
         }
       },
     );

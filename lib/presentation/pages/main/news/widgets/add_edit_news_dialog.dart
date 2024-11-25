@@ -2,12 +2,14 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:news_admin/core/services/di.dart';
+import 'package:news_admin/presentation/pages/main/category/data/get/cubit/cubit.dart';
 import 'package:news_admin/presentation/pages/main/news/data/create_news/cubit/create_news_cubit.dart';
 import 'package:news_admin/presentation/pages/main/news/data/create_news/request.dart';
+import 'package:news_admin/presentation/pages/main/news/widgets/category_dropdown.dart';
 import 'package:news_admin/presentation/pages/main/news/widgets/image_section.dart';
-import 'package:news_admin/presentation/widgets/custom_dropdown.dart';
 import 'package:news_admin/presentation/widgets/custom_text_field.dart';
 import '../../../../widgets/custom_button.dart';
+import '../../category/data/get/response.dart';
 import '../data/edit_news/edit_news_cubit.dart';
 import '../data/get_news/response.dart';
 
@@ -63,7 +65,7 @@ class _AddEditNewsDialogState extends State<AddEditNewsDialog> {
 
   late final TextEditingController _titleController;
   late final TextEditingController _descriptionController;
-  late final ValueNotifier<String?> _categoryNotifier;
+  late final ValueNotifier<Category?> _categoryNotifier;
   late final ValueNotifier<Uint8List?> _imageNotifier;
 
   @override
@@ -73,7 +75,7 @@ class _AddEditNewsDialogState extends State<AddEditNewsDialog> {
     _descriptionController = TextEditingController(
       text: widget.newsDetails?.details,
     );
-    _categoryNotifier = ValueNotifier(null);
+    _categoryNotifier = ValueNotifier(widget.newsDetails?.category);
     _imageNotifier = ValueNotifier(null);
   }
 
@@ -110,10 +112,9 @@ class _AddEditNewsDialogState extends State<AddEditNewsDialog> {
                 textInputAction: TextInputAction.newline,
               ),
               const SizedBox(height: 10),
-              CustomDropdown(
-                list: _categories,
-                valueNotifier: _categoryNotifier,
-                hint: 'Select Category',
+              BlocProvider(
+                create: (context) => GetCategoryCubit(getIt())..get(),
+                child: CategoryDropdown(valueNotifier: _categoryNotifier),
               ),
               const SizedBox(height: 32),
               ImageSection(
@@ -144,7 +145,6 @@ class _AddEditNewsDialogState extends State<AddEditNewsDialog> {
                     }
                     return BlocConsumer<EditNewsCubit, EditNewsState>(
                       listener: (context, state) {
-                        print(state.toString());
                         if (state is EditNewsSuccess) {
                           Navigator.pop(context, true);
                         }
@@ -175,7 +175,7 @@ class _AddEditNewsDialogState extends State<AddEditNewsDialog> {
       final request = CreateNewsRequest(
         title: _titleController.text,
         details: _descriptionController.text,
-        category: Category(id: 1, name: 'Test name'),
+        category: _categoryNotifier.value!,
       );
 
       context.read<CreateNewsCubit>().create(request, _imageNotifier.value!);
@@ -189,10 +189,10 @@ class _AddEditNewsDialogState extends State<AddEditNewsDialog> {
       final request = CreateNewsRequest(
         title: _titleController.text,
         details: _descriptionController.text,
-        category: Category(id: 1, name: 'Test name'),
+        category: _categoryNotifier.value!,
         imageUrl: widget.newsDetails?.imageUrl,
       );
-      print(request.toJson());
+
       context.read<EditNewsCubit>().edit(
             widget.newsDetails!.id!,
             request,
@@ -208,7 +208,4 @@ class _AddEditNewsDialogState extends State<AddEditNewsDialog> {
   bool _validateImage() {
     return _imageNotifier.value != null || widget.newsDetails?.imageUrl != null;
   }
-
-  List<String> get _categories =>
-      ['Politics', 'Sports', 'Technology', 'Health'];
 }
