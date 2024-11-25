@@ -9,10 +9,8 @@ class JwtInterceptor extends Interceptor {
     final token = await getIt<SecureStorageService>().token;
     options.headers.addAll(
       {
-        "Accept-Language": 'az',
-        "Accept": "application/json",
+        "Content-Type": "application/json",
         "Authorization": "Bearer $token",
-        "Device": "app"
       },
     );
 
@@ -28,9 +26,7 @@ class AuthInterceptor extends Interceptor {
       RequestOptions options, RequestInterceptorHandler handler) async {
     options.headers.addAll(
       {
-        "Accept-Language": 'az',
-        "Accept": "application/json",
-        "Device": "app",
+        "Content-Type": "application/json",
       },
     );
 

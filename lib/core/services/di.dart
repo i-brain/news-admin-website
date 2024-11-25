@@ -1,7 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
-import '../../presentation/pages/main/news/data/get_news/repository.dart';
-import '../../presentation/pages/main/news/data/get_news/service.dart';
+import 'package:news_admin/presentation/pages/main/news/data/firebase_service.dart';
+import '../../presentation/pages/main/news/data/repository.dart';
+import '../../presentation/pages/main/news/data/service.dart';
 import '../constants/config.dart';
 import 'interceptor.dart';
 import 'secure_storage.dart';
@@ -32,6 +33,10 @@ Future<void> initializeDependencies() async {
   );
 
   getIt.registerLazySingleton<INewsRepository>(
-      () => NewsRepository(dioWithoutToken));
+    () => NewsRepository(dioWithoutToken),
+  );
+  getIt.registerLazySingleton<FirebaseService>(
+    () => FirebaseService(),
+  );
   getIt.registerLazySingleton<INewsService>(() => NewsService(getIt()));
 }
