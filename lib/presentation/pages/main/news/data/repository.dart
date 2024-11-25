@@ -16,27 +16,27 @@ class NewsRepository implements INewsRepository {
 
   @override
   Future<GetNewsResponse> getAll() async {
-    final result = await dio.get('');
+    final result = await dio.get('/news');
     return GetNewsResponse.fromJson(result.data);
   }
 
   @override
   Future<DefaultPostResponse> create(CreateNewsRequest request) async {
-    final result = await dio.post('', data: request);
+    final result = await dio.post('/news', data: request);
 
     return DefaultPostResponse.fromJson(result.data);
   }
 
   @override
   Future<DefaultPostResponse> edit(int id, CreateNewsRequest request) async {
-    final result = await dio.put('/$id', data: request);
+    final result = await dio.put('/news/$id', data: request);
 
     return DefaultPostResponse.fromJson(result.data);
   }
 
   @override
   Future<DefaultPostResponse> delete(int id) async {
-    final result = await dio.delete('/$id');
+    final result = await dio.delete('/news/$id');
 
     return DefaultPostResponse.fromJson(result.data);
   }

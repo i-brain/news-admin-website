@@ -1,4 +1,4 @@
-import '../get_news/response.dart';
+import '../../../category/data/get/response.dart';
 
 class CreateNewsRequest {
   final String title;
