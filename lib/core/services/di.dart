@@ -1,10 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:news_admin/presentation/pages/main/news/data/firebase_service.dart';
+import 'package:news_admin/presentation/pages/main/users/data/repository.dart';
 import '../../presentation/pages/main/category/data/repository.dart';
 import '../../presentation/pages/main/category/data/service.dart';
 import '../../presentation/pages/main/news/data/repository.dart';
 import '../../presentation/pages/main/news/data/service.dart';
+import '../../presentation/pages/main/users/data/service.dart';
 import '../constants/config.dart';
 import 'interceptor.dart';
 import 'secure_storage.dart';
@@ -46,4 +48,7 @@ Future<void> initializeDependencies() async {
     () => CategoryRepository(dioWithoutToken),
   );
   getIt.registerLazySingleton<ICategoryService>(() => CategoryService(getIt()));
+
+  getIt.registerLazySingleton<IUserRepository>(() => UserRepository());
+  getIt.registerLazySingleton<IUserService>(() => UserService(getIt()));
 }

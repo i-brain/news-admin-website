@@ -6,6 +6,7 @@ import 'package:news_admin/presentation/pages/main/category/widgets/body.dart';
 import 'package:news_admin/presentation/pages/main/news/data/delete_news/delete_news_cubit.dart';
 import 'package:news_admin/presentation/pages/main/news/data/get_news/cubit/get_news_cubit.dart';
 import 'package:news_admin/presentation/pages/main/news/widgets/body.dart';
+import 'package:news_admin/presentation/pages/main/users/widgets/body.dart';
 import 'package:news_admin/presentation/widgets/custom_drawer.dart';
 import '../../../core/constants/colors.dart';
 import '../../../responsive.dart';
@@ -103,5 +104,6 @@ class _MainPageState extends State<MainPage> {
           ],
           child: const CategoryBody(),
         ),
+        const UsersBody()
       ];
 }

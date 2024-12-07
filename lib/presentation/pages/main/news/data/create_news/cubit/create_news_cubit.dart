@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:bloc/bloc.dart';
@@ -25,7 +24,10 @@ class CreateNewsCubit extends Cubit<CreateNewsState> {
       final imageUrl =
           await firebaseService.uploadImage(imageData, request.title);
       request.setImageUrl(imageUrl!);
-      print('imageurl $imageUrl');
+      print('add newss started---');
+      final id = request.title;
+      await firebaseService.addNews(id);
+      print('add newss success---');
       final response = await service.create(request);
 
       if (response.success) {
@@ -48,7 +50,8 @@ class CreateNewsCubit extends Cubit<CreateNewsState> {
         );
       }
     } catch (error) {
-      log('error');
+      print('error---');
+      print(error.toString());
       emit(const CreateNewsFailure(ErrorMessages.errorOccurred));
     }
   }

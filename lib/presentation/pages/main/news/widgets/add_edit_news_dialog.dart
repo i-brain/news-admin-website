@@ -134,6 +134,7 @@ class _AddEditNewsDialogState extends State<AddEditNewsDialog> {
                           }
                         },
                         builder: (context, state) {
+                          print(state);
                           return CustomButton(
                             onTap: _submitCreate,
                             title: 'Submit',
