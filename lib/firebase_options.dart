@@ -53,11 +53,12 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDrhwqqkHRAPnZCqbWWm_mgCueOAbSi5bQ',
-    appId: '1:315156816321:web:fea0fa82b1ac8bf9238f40',
-    messagingSenderId: '315156816321',
-    projectId: 'news-portal-image-storage',
-    authDomain: 'news-portal-image-storage.firebaseapp.com',
-    storageBucket: 'news-portal-image-storage.firebasestorage.app',
+    apiKey: 'AIzaSyCmM3dsHoiI-sQVQ9Tisoc-gKP2z_QnKUs',
+    appId: '1:1044778363200:web:5a4414ae89bd73c4e9f2a5',
+    messagingSenderId: '1044778363200',
+    projectId: 'news-portal-e55a3',
+    authDomain: 'news-portal-e55a3.firebaseapp.com',
+    storageBucket: 'news-portal-e55a3.firebasestorage.app',
+    measurementId: 'G-1F8F7FXKF9',
   );
 }
