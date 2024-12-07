@@ -1,5 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:news_admin/core/extension.dart';
+
+import '../dialogs/error.dart';
+import '../pages/login/data/cubit/login_cubit.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({
@@ -15,13 +20,38 @@ class CustomDrawer extends StatelessWidget {
       child: ListView(
         children: [
           DrawerHeader(
-            child: Row(
+            child: Column(
               children: [
-                const Icon(Icons.flutter_dash, size: 60),
-                Text(
-                  'Mews',
-                  style: context.style.titleLarge,
+                Row(
+                  children: [
+                    const Icon(Icons.flutter_dash, size: 60),
+                    Text(
+                      'Mews',
+                      style: context.style.titleLarge,
+                    ),
+                  ],
                 ),
+                StreamBuilder(
+                  stream: FirebaseAuth.instance.userChanges(),
+                  builder: (context, snapshot) {
+                    final user = snapshot.data;
+                    if (user != null) {
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 30),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.person),
+                            const SizedBox(width: 10),
+                            Text(
+                              '${user.displayName}',
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                )
               ],
             ),
           ),
@@ -38,6 +68,19 @@ class CustomDrawer extends StatelessWidget {
                 },
               ),
             ),
+          ),
+          BlocListener<LoginCubit, LoginState>(
+            listener: (context, state) {
+              if (state is LogoutFailure) {
+                showErrorDialog(context, state.message);
+              }
+            },
+            child: DrawerListTile(
+              info: DrawerTileInfo('Logout', Icons.logout),
+              onTap: () {
+                context.read<LoginCubit>().logout();
+              },
+            ),
           )
         ],
       ),
@@ -48,7 +91,6 @@ class CustomDrawer extends StatelessWidget {
         DrawerTileInfo('News', Icons.newspaper),
         DrawerTileInfo('Category', Icons.category),
         DrawerTileInfo('Users', Icons.people),
-        DrawerTileInfo('Settings', Icons.settings),
       ];
 }
 
